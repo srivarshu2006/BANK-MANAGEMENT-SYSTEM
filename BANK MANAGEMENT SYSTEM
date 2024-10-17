@@ -1,0 +1,120 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define MAX_TRANSACTIONS 100
+#define MAX_USERS 100
+
+struct Transaction {
+    int transactionID;
+    char type[20];
+    float amount;
+    char date[20];
+};
+
+struct User {
+    int userID;
+    char name[50];
+    float balance;
+    struct Transaction transactions[MAX_TRANSACTIONS];
+    int numTransactions;
+};
+
+struct User users[MAX_USERS];
+int numUsers = 0;
+
+void addTransaction(struct User *user, char type[], float amount, char date[]) {
+    struct Transaction *transaction = &user->transactions[user->numTransactions++];
+    transaction->transactionID = user->numTransactions;
+    strcpy(transaction->type, type);
+    transaction->amount = amount;
+    strcpy(transaction->date, date);
+}
+
+void displayTransactions(struct User user) {
+    printf("Transaction history for %s:\n", user.name);
+    for (int i = 0; i < user.numTransactions; i++) {
+        printf("ID: %d, Type: %s, Amount: %.2f, Date: %s\n", user.transactions[i].transactionID,
+               user.transactions[i].type, user.transactions[i].amount, user.transactions[i].date);
+    }
+}
+
+int main() {
+    int choice;
+    do {
+        printf("\nBank Management System\n");
+        printf("1. Add User\n");
+        printf("2. Add Transaction\n");
+        printf("3. Display Transaction History\n");
+        printf("4. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 1: {
+                struct User newUser;
+                printf("\nEnter User ID: ");
+                scanf("%d", &newUser.userID);
+                printf("\nEnter Name: ");
+                scanf("%s", newUser.name);
+                printf("\nEnter Initial Balance: ");
+                scanf("%f", &newUser.balance);
+                newUser.numTransactions = 0;
+                users[numUsers++] = newUser;
+                printf("User added successfully.\n");
+                break;
+            }
+            case 2: {
+                int userID;
+                char type[20];
+                float amount;
+                char date[20];
+                printf("\nEnter User ID: ");
+                scanf("%d", &userID);
+                int found = 0;
+                for (int i = 0; i < numUsers; i++) {
+                    if (users[i].userID == userID) {
+                        found = 1;
+                        printf("Enter Transaction Type (Deposit/Withdrawal): ");
+                        scanf("%s", type);
+                        printf("Enter Amount: ");
+                        scanf("%f", &amount);
+                        printf("Enter Date (YYYY-MM-DD): ");
+                        scanf("%s", date);
+                        addTransaction(&users[i], type, amount, date);
+                        printf("Transaction added successfully.\n");
+                        break;
+                    }
+                }
+                if (!found) {
+                    printf("User not found.\n");
+                }
+                break;
+            }
+            case 3: {
+                int userID;
+                printf("\nEnter User ID: ");
+                scanf("%d", &userID);
+                int found = 0;
+                for (int i = 0; i < numUsers; i++) {
+                    if (users[i].userID == userID) {
+                        found = 1;
+                        displayTransactions(users[i]);
+                        break;
+                    }
+                }
+                if (!found) {
+                    printf("User not found.\n");
+                }
+                break;
+            }
+            case 4: {
+                printf("Exiting program.\n");
+                exit(0);
+            }
+            default:
+                printf("Invalid choice. Please try again.\n");
+        }
+    } while (1);
+    return 0;
+}
